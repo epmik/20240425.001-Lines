@@ -167,11 +167,39 @@ public class Math
     return normalized * (mapMax - mapMin) + mapMin;
   }  
 
+	public static float Clamp(float value)
+  {
+      return Clamp(value, 0.0f, 1.0f);
+  }
+
+	public static float Clamp(float value, float max)
+  {
+    return Clamp(value, 0.0f, max);
+  }
+    
+	public static float Clamp(float value, float min, float max)
+	{
+    if (value > max) 
+    {
+			return max;
+		}
+    if (value < min) 
+    {
+			return min;
+		}
+		return value;
+	}
+
 	public static double Clamp(double value)
   {
       return Clamp(value, 0.0, 1.0);
   }
-  
+
+	public static double Clamp(double value, double max)
+  {
+    return Clamp(value, 0.0, max);
+  }
+    
 	public static double Clamp(double value, double min, double max)
 	{
     if (value > max) 
@@ -184,6 +212,52 @@ public class Math
 		}
 		return value;
 	}
+  
+  public static float Wrap(float v)
+  {
+    return Wrap(v, 0f, 1f);
+  }
+  
+  public static float Wrap(float v, float max)
+  {
+    return Wrap(v, 0f, max);
+  }
+  
+  public static float Wrap(float v, float min, float max)
+  {
+    if (v < min) 
+    {
+      return Wrap(v + min, min, max);
+    }
+    if (v > max) 
+    {
+      return Wrap(v - max, min, max);
+    }
+    return v;
+  }
+  
+  public static double Wrap(double v)
+  {
+    return Wrap(v, 0, 1);
+  }
+  
+  public static double Wrap(double v, double max)
+  {
+    return Wrap(v, 0, max);
+  }
+  
+  public static double Wrap(double v, double min, double max)
+  {
+    if (v < min) 
+    {
+      return Wrap(v + min, min, max);
+    }
+    if (v > max) 
+    {
+      return Wrap(v - max, min, max);
+    }
+    return v;
+  }
 
 	public static int Clamp(int value, int max)
   {

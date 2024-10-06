@@ -6,9 +6,7 @@ import processing.core.PGraphics;
 
 public class Trajectory002 implements ITrajectory
 {
-    // public float Angle;
-    // public float Time;
-    public RandomGenerator RandomGenerator;
+    // public RandomGenerator RandomGenerator;
     public OpenSimplexSummedNoiseGenerator NoiseGenerator;
     public float MinAngleStep = 0.01f;
     public float MaxAngleStep = 0.05f;
@@ -39,7 +37,7 @@ public class Trajectory002 implements ITrajectory
 
     public Trajectory002()
     {
-        RandomGenerator = new RandomGenerator();
+        // RandomGenerator = new RandomGenerator();
         NoiseGenerator = new OpenSimplexSummedNoiseGenerator();
 
         // Angle = (float) RandomGenerator.Value(Math.PI * 2f);
@@ -56,8 +54,8 @@ public class Trajectory002 implements ITrajectory
     {
         WalkTrajectory();
 
-        graphics.pushMatrix();     
-        
+        graphics.pushMatrix();
+
         for (Vector2 v : _points) 
         {
             var screenx = graphics.screenX(v.X, v.Y);
@@ -69,6 +67,24 @@ public class Trajectory002 implements ITrajectory
         }
 
         graphics.popMatrix();
+
+        PointAt(0.0f);
+        PointAt(0.5f);
+        PointAt(0.505f);
+        PointAt(1.0f);
+    }
+    
+    public Vector2 PointAt(float time)
+    {
+        time = Utility.Math.Clamp(time);
+
+        var step = 1f / (float) Resolution;
+
+        var index = (int) (time / step);
+
+        var remainder = time - ((float) index * step);
+        
+        return _points[index];
     }
     
     public void WalkTrajectory()
@@ -79,15 +95,10 @@ public class Trajectory002 implements ITrajectory
         }
         
         _points = null;
-
-        if(_points == null)
-        {
-            _points = new Vector2[Resolution];
-        }
+        _points = new Vector2[Resolution];
 
         _distanceStep = TotalDistance / (float) Resolution;
 
-        // float distance = 0f;
         float x = 0f, y = 0f;
         float a = 0f;
         int resolutionIndex = 0;
@@ -100,7 +111,6 @@ public class Trajectory002 implements ITrajectory
 
             x = r[0];
             y = r[1];
-            // distance += r[2];
             a = r[3];
             resolutionIndex = (int)r[4];
         }
