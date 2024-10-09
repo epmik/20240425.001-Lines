@@ -4,10 +4,11 @@ package Utility.Interfaces;
 public interface INoiseGenerator
 {
     long Seed();
+    long Reset();
     long ReSeed();
     long ReSeed(long seed);
-    double Value(double x);
-    double Value(double x, double y);
-    double Value(double x, double y, double z);
-    double Value(double x, double y, double z, double w);
+    float Value(float x);
+    float Value(float x, float y);
+    float Value(float x, float y, float z);
+    float Value(float x, float y, float z, float w);
 }

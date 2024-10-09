@@ -12,10 +12,7 @@ import Utility.ColorPicker.ColorScheme;
 import Utility.Interfaces.INoiseGenerator;
 import Utility.Interfaces.IRandomGenerator;
 import processing.core.*;
-import processing.core.PShapeSVG.Gradient;
 import processing.event.KeyEvent;
-import processing.event.MouseEvent;
-import controlP5.*;
 
 public class Sketch extends PApplet implements ISketch {
   
@@ -33,10 +30,10 @@ public class Sketch extends PApplet implements ISketch {
   public IRandomGenerator RandomGenerator;
   public INoiseGenerator NoiseGenerator;
 
-  private int _trajectoryCount = 640;
+  private int _sunRayCount = 1;//256;
 
   // ArrayList<Trajectory001> _trajectory001ArrayList = new ArrayList<Trajectory001>();
-  ArrayList<Trajectory002> _trajectory002ArrayList = new ArrayList<Trajectory002>();
+  ArrayList<AbstractSunRay> _sunRayArrayList = new ArrayList<AbstractSunRay>();
   
   public PGraphics Graphics;
 
@@ -60,19 +57,23 @@ public class Sketch extends PApplet implements ISketch {
   public int StaticRayColor = 0;
   public RayColorMode ColorMode = RayColorMode.RayColor;
   
-  public int RayColor(Trajectory002 trajectory, float x, float y)
+  public int RayColor(ISunRay sunRay, float time, float x, float y)
   {
-    switch (ColorMode) {
-      case StaticRayColor: {
+    switch (ColorMode) 
+    {
+      case StaticRayColor: 
+      {
         return StaticRayColor;
       }
-      case InvertedBackgroundGradient: {
+      case InvertedBackgroundGradient: 
+      {
         float t = 1f - (y / Graphics.height);
 
         return Background.Gradient.Color(t).ToInt();
       }
-      default: {
-        return trajectory.RayColor;
+      default: 
+      {
+        return sunRay.Color();
       }
     }
   }
@@ -126,22 +127,38 @@ public class Sketch extends PApplet implements ISketch {
     }
 
     Background.Gradient.Insert(1f, colors[colors.length - 1]);
+  }
 
-    // Background.Gradient.Insert(0f, 0, 4, 87);
-    // Background.Gradient.Insert(1f, 247, 210, 0);
+  private void SetupRays()
+  {
+    for(var i = 0; i < _sunRayCount; i++)
+    {
+      var t = new Trajectory002();
+      t.Length(2400);
 
-    // Background.Gradient.Insert(0f, 8, 2, 40);
-    // Background.Gradient.Insert(0.25f, 12, 40, 87);
-    // Background.Gradient.Insert(0.5f, 13, 86, 103);
-    // Background.Gradient.Insert(0.75f, 72, 124, 85);
-    // Background.Gradient.Insert(1f, 204, 154, 3);
+      var s = i < _sunRayArrayList.size() ? (SunRayNoiseWidth)_sunRayArrayList.get(i) : null;
+
+      if(s == null)
+      {
+        s = new SunRayNoiseWidth();
+        _sunRayArrayList.add(s);
+      }
+
+      ((SunRayNoiseWidth)s).NoiseInputMultiplier = 0.001f;
+      s.Trajectory(t);
+      ((SunRayNoiseWidth)s).MaxWidth = 120f;
+      s.Setup();
+
+    }
+
+    SetupRayColors();
   }
 
   private void SetupRayColors()
   {
-    for (var r : _trajectory002ArrayList) 
+    for (var r : _sunRayArrayList) 
     {
-      r.RayColor = Background.Gradient.RandomColor(0.00f, 1f).ToInt();
+      r.Color(Background.Gradient.RandomColor(0.00f, 1f).ToInt());
     }
   }
   
@@ -176,12 +193,7 @@ public class Sketch extends PApplet implements ISketch {
 
     SetupColorsAndBackground();
 
-   
-
-    for(var i = 0; i < _trajectoryCount; i++)
-    {
-      _trajectory002ArrayList.add(new Trajectory002());
-    }
+    SetupRays();
     
     SetupRayColors();
 
@@ -201,7 +213,7 @@ public class Sketch extends PApplet implements ISketch {
     RandomGenerator.ReSeed(RandomGenerator.Seed());
 
     // _trajectory001ArrayList.forEach((t) -> { t.Update(elapsed); });
-    _trajectory002ArrayList.forEach((t) -> { t.Update(elapsed); });
+    _sunRayArrayList.forEach((t) -> { t.Update(elapsed); });
 
     // _trajectory001.Update(elapsed);
     // _trajectory002.Update(elapsed);
@@ -230,7 +242,7 @@ public class Sketch extends PApplet implements ISketch {
     Graphics.translate(Graphics.width / 2, Graphics.height / 2);
 
     //_trajectory001ArrayList.forEach((t) -> { t.Draw(_mainLayer); });
-    _trajectory002ArrayList.forEach((t) -> {
+    _sunRayArrayList.forEach((t) -> {
       t.Draw(Graphics);
     });
 
@@ -255,9 +267,11 @@ public class Sketch extends PApplet implements ISketch {
     //   t.Angle = (float)t.RandomGenerator.Value(Math.PI * 2f);
     // });
 
-    _trajectory002ArrayList.forEach((t) -> { 
-      t.NoiseGenerator.ReSeed();
-    });
+    // _sunRay002ArrayList.forEach((t) -> { 
+    //   t.NoiseGenerator.ReSeed();
+    // });
+
+    SetupRays();
 
     StaticRayColor = Background.Gradient.RandomColor().ToInt();
 

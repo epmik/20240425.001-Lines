@@ -1,77 +1,32 @@
 import Geometry.Vector2;
-import Utility.Easing;
 import Utility.OpenSimplexSummedNoiseGenerator;
-import Utility.RandomGenerator;
-import processing.core.PGraphics;
 
-public class Trajectory002 implements ITrajectory
+public class Trajectory002 extends AbstractTrajectory
 {
-    // public RandomGenerator RandomGenerator;
     public OpenSimplexSummedNoiseGenerator NoiseGenerator;
     public float MinAngleStep = 0.01f;
     public float MaxAngleStep = 0.05f;
-    public int RayColor = 0;
-    public float MaxDeviation = 200f;
-    public float NoiseMultiplier = 0.01f;
     public float AngleNoiseOffset = 10.7641f;
     public float AngleNoiseMultiplier = 0.1f;
-    private float _distanceStep = 4f;
-    public float TotalDistance = 1000;
-    public int Resolution = 250;
+    private float _distanceStep;
 
     private Vector2[] _points;
 
-    // private int DefaultScaleHeight = 1024; 
-
-    // private float _scale = 1f;
-
-    // public float Scale()
-    // {
-    //     return _scale;
-    // }
-    
-    // public void Scale(float scale)
-    // {
-    //     _scale = scale;
-    // }
-
     public Trajectory002()
     {
-        // RandomGenerator = new RandomGenerator();
         NoiseGenerator = new OpenSimplexSummedNoiseGenerator();
-
-        // Angle = (float) RandomGenerator.Value(Math.PI * 2f);
-        
-        // Scale((float) Sketch.Instance.Graphics.height / (float) DefaultScaleHeight);
     }
 
+    @Override
+    public void Setup()
+    {
+        WalkTrajectory();
+    }
+
+    @Override
     public void Update(float elapsed)
     {
         
-    }
-    
-    public void Draw(PGraphics graphics)
-    {
-        WalkTrajectory();
-
-        graphics.pushMatrix();
-
-        for (Vector2 v : _points) 
-        {
-            var screenx = graphics.screenX(v.X, v.Y);
-            var screeny = graphics.screenY(v.X, v.Y);
-
-            graphics.noStroke();
-            graphics.fill(Sketch.Instance.RayColor(this, screenx, screeny));
-            graphics.circle(v.X, v.Y, 2f);
-        }
-
-        graphics.popMatrix();
-
-        PointAt(0.0f);
-        PointAt(0.5f);
-        PointAt(0.505f);
-        PointAt(1.0f);
     }
     
     public Vector2 PointAt(float time)
@@ -80,11 +35,21 @@ public class Trajectory002 implements ITrajectory
 
         var step = 1f / (float) Resolution;
 
-        var index = (int) (time / step);
+        var firstIndex = (int)Math.floor(time / step);
+        var lastIndex = firstIndex;
 
-        var remainder = time - ((float) index * step);
-        
-        return _points[index];
+        if(lastIndex == _points.length)
+        {
+            lastIndex = firstIndex;
+        }
+
+        var remainder = time - ((float) firstIndex * step);
+
+        var t = remainder * (1f / step);
+
+        return new Vector2(
+            _points[firstIndex].X + (_points[lastIndex].X - _points[firstIndex].X) * t,
+            _points[firstIndex].Y + (_points[lastIndex].Y - _points[firstIndex].Y) * t);
     }
     
     public void WalkTrajectory()
@@ -97,7 +62,7 @@ public class Trajectory002 implements ITrajectory
         _points = null;
         _points = new Vector2[Resolution];
 
-        _distanceStep = TotalDistance / (float) Resolution;
+        _distanceStep = _length / (float) Resolution;
 
         float x = 0f, y = 0f;
         float a = 0f;
@@ -123,13 +88,7 @@ public class Trajectory002 implements ITrajectory
         while(distance <= walkDistance && resolutionIndex < Resolution)
         {
             _points[resolutionIndex] = new Vector2(x, y);
-            // var screenx = graphics.screenX(x, y);
-            // var screeny = graphics.screenY(x, y);
-
-            // graphics.noStroke();
-            // graphics.fill(Sketch.Instance.RayColor(this, screenx, screeny));
-            // graphics.circle(x, y, 2);
-
+            
             x +=  _distanceStep * Math.cos(angle);
             y +=  _distanceStep * Math.sin(angle);
 
