@@ -1,50 +1,51 @@
 package Utility;
 
 import java.util.NavigableMap;
-import java.util.Random;
 import java.util.TreeMap;
 
-public class WeightedCollection<TValue> 
+import Utility.Interfaces.IRandomGenerator;
+
+public class WeightedCollection<TObject> 
 {
-    private final NavigableMap<Double, TValue> map = new TreeMap<Double, TValue>();
-    private final Random random;
-    private double total = 0;
+    private final NavigableMap<Double, TObject> _map = new TreeMap<Double, TObject>();
+    private final IRandomGenerator _randomGenerator;
+    private double _total = 0;
 
     public WeightedCollection() 
     {
-        this(new Random());
+        this(new RandomGenerator());
     }
 
     public WeightedCollection(long seed) 
     {
-        this(new Random(seed));
+        this(new RandomGenerator(seed));
     }
 
-    public WeightedCollection(Random random) 
+    public WeightedCollection(RandomGenerator randomGenerator) 
     {
-        this.random = random;
+        _randomGenerator = randomGenerator;
     }
 
-    public WeightedCollection<TValue> Add(double weight, TValue result) 
+    public WeightedCollection<TObject> Add(double weight, TObject result) 
     {
         if (weight <= 0)
             return this;
         
-        total += weight;
+            _total += weight;
         
-        map.put(total, result);
+        _map.put(_total, result);
             
         return this;
     }
 
-    public TValue Next() 
+    public TObject Next() 
     {
-        double value = random.nextDouble() * total;
-        return map.higherEntry(value).getValue();
+        double value = _randomGenerator.Value() * _total;
+        return _map.higherEntry(value).getValue();
     }
 
     public void Clear() 
     {
-        map.clear();
+        _map.clear();
     }
 }

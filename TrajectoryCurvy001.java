@@ -1,19 +1,24 @@
 import Geometry.Vector2;
 import Utility.OpenSimplexSummedNoiseGenerator;
+import Utility.RandomGenerator;
 
-public class Trajectory002 extends AbstractTrajectory
+public class TrajectoryCurvy001 extends AbstractTrajectory
 {
+    public RandomGenerator RandomGenerator;
     public OpenSimplexSummedNoiseGenerator NoiseGenerator;
     public float MinAngleStep = 0.01f;
     public float MaxAngleStep = 0.05f;
     public float AngleNoiseOffset = 10.7641f;
     public float AngleNoiseMultiplier = 0.1f;
     private float _distanceStep;
+    public int WalkCount = 5;
+    public float WalkDistanceDeviation = 0f;
 
     private Vector2[] _points;
 
-    public Trajectory002()
+    public TrajectoryCurvy001()
     {
+        RandomGenerator = new RandomGenerator();
         NoiseGenerator = new OpenSimplexSummedNoiseGenerator();
     }
 
@@ -67,16 +72,25 @@ public class Trajectory002 extends AbstractTrajectory
         float x = 0f, y = 0f;
         float a = 0f;
         int resolutionIndex = 0;
+        float defaultWalkDistance = _length / (float) WalkCount;
+        float walkDistance = defaultWalkDistance;
 
         while(resolutionIndex < Resolution)
         {
             float angleStep = (float)(Math.PI * (MinAngleStep + ((MaxAngleStep - MinAngleStep) * NoiseGenerator.Value((AngleNoiseOffset + y) * AngleNoiseMultiplier))));
 
-            var r = WalkCurve(x, y, 200, a, angleStep, resolutionIndex);
+            float walkDistanceOffset = RandomGenerator.Value(-defaultWalkDistance * WalkDistanceDeviation, defaultWalkDistance * WalkDistanceDeviation);
+
+            walkDistance += walkDistanceOffset;
+
+            var r = WalkCurve(x, y, walkDistance, a, angleStep, resolutionIndex);
+
+            walkDistance = defaultWalkDistance - walkDistanceOffset;
 
             x = r[0];
             y = r[1];
             a = r[3];
+
             resolutionIndex = (int)r[4];
         }
     }

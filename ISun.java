@@ -1,7 +1,7 @@
 
 public interface ISun
 {
-    void setup(Sketch sketch);
+    void setup(SketchTrajectoryCurvy001 sketch);
 
     void update(float elapsed);
     

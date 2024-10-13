@@ -6,4 +6,10 @@ public interface ISketch extends IGui
 {
     // int Width();
     // int Height();
+
+    // void Setup(float elapsed);
+
+    // void Update(float elapsed);
+
+    // void Draw();
 }

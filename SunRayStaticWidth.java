@@ -11,6 +11,8 @@ public class SunRayStaticWidth extends AbstractSunRay
 
         graphics.pushMatrix();
 
+        graphics.rotate(Angle);
+        
         graphics.noFill();
 
         graphics.beginShape();
@@ -24,7 +26,7 @@ public class SunRayStaticWidth extends AbstractSunRay
             var screenx = graphics.screenX(v.X, v.Y);
             var screeny = graphics.screenY(v.X, v.Y);
 
-            graphics.stroke(Sketch.Instance.RayColor(this, time, screenx, screeny));
+            graphics.stroke(((SketchTrajectory002)(Sketch.Instance)).RayColor(this, time, screenx, screeny));
             graphics.vertex(v.X, v.Y);
         }
 

@@ -1,12 +1,20 @@
 import Geometry.Vector2;
+import Utility.RandomGenerator;
 import processing.core.PGraphics;
 
 public abstract class AbstractSunRay implements ISunRay 
 {
     private ITrajectory _trajectory;
     private int _color;
-
     public int Resolution = 1000;
+    public float Angle = 0f;
+
+    public AbstractSunRay()
+    {
+        super();
+
+        // Angle = RandomGenerator.Default.Value(0, Math.PI * 2f);
+    }
 
     public ITrajectory Trajectory()
     {

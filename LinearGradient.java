@@ -1,16 +1,13 @@
 import java.util.ArrayList;
-
 import Utility.Color;
 import Utility.RandomGenerator;
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PGraphics;
 
 public class LinearGradient
 {
     public RandomGenerator RandomGenerator;
 
-    public int Alpha = 255;
+    private float _minTime = 0f;
+    private float _maxTime = 0f;
 
     ArrayList<Entry> _entryArrayList = new ArrayList<Entry>();
 
@@ -55,9 +52,6 @@ public class LinearGradient
     public LinearGradient() 
     {
         RandomGenerator = new RandomGenerator();
-
-        _entryArrayList.add(new Entry() { { Time = 0f; Color = new Utility.Color(0f, 0f, 0f, 1f); }});
-        _entryArrayList.add(new Entry() { { Time = 1f; Color = new Utility.Color(1f, 1f, 1f, 1f); }});
     }
     
     public void Insert(float time, Color color)
@@ -89,6 +83,9 @@ public class LinearGradient
     {
         _entryArrayList.removeIf(o -> o.Time == time);
 
+        _minTime = time < _minTime ? time : _minTime;
+        _maxTime = time > _maxTime ? time : _maxTime;
+
         _entryArrayList.add(new Entry() {
             {
                 Time = time;
@@ -110,21 +107,18 @@ public class LinearGradient
     
     public Color Color(float time)
     {
-        time = Color.Clamp(time);
+        time = Utility.Math.Clamp(time, _minTime, _maxTime);
 
         int first = 0, last = 0;       
 
-        for (Entry entry : _entryArrayList) {
-            if (entry.Time >= time) {
+        for (Entry entry : _entryArrayList) 
+        {
+            if (entry.Time >= time) 
+            {
                 break;
             }
             last++;
         }
-
-        // if (first == 5 || last == 5)
-        // {
-        //     var s = 5;
-        // }
 
         first = last - 1;
 

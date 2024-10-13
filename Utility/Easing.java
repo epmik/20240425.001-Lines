@@ -3,7 +3,7 @@ package Utility;
 public class Easing 
 {
     public interface IEasingFunction {
-        double Ease(double time);
+        float Ease(float time);
     }
     
     private static Easing.IEasingFunction[] _allFunctions = new IEasingFunction[] { 
@@ -115,11 +115,11 @@ public class Easing
 
     // https://easings.net/ !!!!
     
-    public static double Linear(double time){
+    public static float Linear(float time){
         return time;
     }
     
-    public static double Linear(double time, double from, double to){
+    public static float Linear(float time, float from, float to){
         return from + (to - from) * time;
     }
 
@@ -127,223 +127,223 @@ public class Easing
 
 
     // quadratic easing in - accelerating from zero velocity
-    public static double InQuadratic (double time) {
+    public static float InQuadratic (float time) {
         return time * time;
     };		
 
     // quadratic easing out - decelerating to zero velocity
-    public static double OutQuadratic (double time) {
-        return 1 - InQuadratic(1-time);
+    public static float OutQuadratic (float time) {
+        return 1f - InQuadratic(1f-time);
     };        
 
     // quadratic easing in/out - acceleration until halfway, then deceleration
-    public static double InOutQuadratic (double time) {
-        if(time < 0.5) 
+    public static float InOutQuadratic (float time) {
+        if(time < 0.5f) 
         {
-            return InQuadratic(time*2.0)/2.0;
+            return InQuadratic(time*2.0f)/2.0f;
         }
-        return 1-InQuadratic((1-time)*2)/2;            
+        return 1-InQuadratic((1f-time)*2f)/2f;            
     };
 
 
 
 
     // cubic easing in - accelerating from zero velocity
-    public static double InCubic (double time) {
-        return java.lang.Math.pow(time, 3);
+    public static float InCubic (float time) {
+        return (float)java.lang.Math.pow(time, 3);
     };        
 
     // cubic easing out - decelerating to zero velocity
-    public static double OutCubic (double time) {
-        return 1 - InCubic(1-time);
+    public static float OutCubic (float time) {
+        return 1f - InCubic(1f-time);
     };
 
     // cubic easing in/out - acceleration until halfway, then deceleration
-    public static double InOutCubic (double time) {
-        if(time < 0.5) 
+    public static float InOutCubic (float time) {
+        if(time < 0.5f) 
         {
-            return InCubic(time*2.0)/2.0;
+            return InCubic(time*2.0f)/2.0f;
         }
-        return 1-InCubic((1-time)*2)/2;            
+        return 1-InCubic((1f-time)*2f)/2f;            
     };
     
     
 
 
     // quartic easing in - accelerating from zero velocity
-    public static double InQuartic (double time) {
-        return java.lang.Math.pow(time, 4);
+    public static float InQuartic (float time) {
+        return (float)java.lang.Math.pow(time, 4);
     };
 
     // quartic easing out - decelerating to zero velocity
-    public static double OutQuartic (double time) {
-        return 1 - InQuartic(1-time);
+    public static float OutQuartic (float time) {
+        return 1f - InQuartic(1f-time);
     };		
 
     // quartic easing in/out - acceleration until halfway, then deceleration
-    public static double InOutQuartic (double time) {
+    public static float InOutQuartic (float time) {
         if(time < 0.5) 
         {
-            return InQuartic(time*2.0)/2.0;
+            return InQuartic(time*2.0f)/2.0f;
         }
-        return 1-InQuartic((1-time)*2)/2;            
+        return 1-InQuartic((1f-time)*2f)/2f;            
     };
 
 
 
 
     // quintic easing in - accelerating from zero velocity
-    public static double InQuintic (double time) {
-        return java.lang.Math.pow(time, 5);
+    public static float InQuintic (float time) {
+        return (float)java.lang.Math.pow(time, 5);
     };        
 
     // quintic easing out - decelerating to zero velocity
-    public static double OutQuintic (double time) {
-        return 1 - InQuintic(1-time);
+    public static float OutQuintic (float time) {
+        return 1f - InQuintic(1-time);
     };            
 
     // quintic easing in/out - acceleration until halfway, then deceleration
-    public static double InOutQuintic (double time) {
-        if(time < 0.5) 
+    public static float InOutQuintic (float time) {
+        if(time < 0.5f) 
         {
-            return InQuintic(time*2.0)/2.0;
+            return InQuintic(time*2.0f)/2.0f;
         }
-        return 1-InQuintic((1-time)*2)/2;            
+        return 1-InQuintic((1f-time)*2f)/2f;            
     };
 		
 
 
 
-    public static double InExpo (double time) {
-        return time == 0 ? 0 : java.lang.Math.pow(2, 10 * time - 10);
+    public static float InExpo (float time) {
+        return time == 0f ? 0f : (float)java.lang.Math.pow(2, 10f * time - 10f);
     };
 
-    public static double OutExpo (double time) {
-        return 1 - InExpo(1-time);
+    public static float OutExpo (float time) {
+        return 1f - InExpo(1f-time);
     };
 
-    public static double InOutExpo (double time) {
-        if(time < 0.5) 
+    public static float InOutExpo (float time) {
+        if(time < 0.5f) 
         {
-            return InExpo(time*2.0)/2.0;
+            return InExpo(time*2.0f)/2.0f;
         }
-        return 1-InExpo((1-time)*2)/2;            
+        return 1f-InExpo((1f-time)*2f)/2f;            
     };
 
 
 
     // sinusoidal easing in - accelerating from zero velocity
-    public static double InSine (double time) {
-        return -java.lang.Math.cos(time/1 * (Math.Pi/2)) + 1;
+    public static float InSine (float time) {
+        return -(float)java.lang.Math.cos(time/1f * (Math.Pi/2f)) + 1f;
     };
 
     // sinusoidal easing out - decelerating to zero velocity
-    public static double OutSine (double time) {
-        return java.lang.Math.sin(time/1 * (Math.Pi/2));
+    public static float OutSine (float time) {
+        return (float)java.lang.Math.sin(time/1f * (Math.Pi/2f));
     };
 
     // sinusoidal easing out - decelerating to zero velocity
-    public static double InOutSine (double time) {
-        return -(java.lang.Math.cos(Math.Pi * time) - 1) / 2;
+    public static float InOutSine (float time) {
+        return -(float)((java.lang.Math.cos(Math.Pi * time) - 1f) / 2f);
     };
 
 
 
 
-    public static double InCircular (double time) {
-        return 1 - java.lang.Math.sqrt(1 - java.lang.Math.pow(time, 2));
+    public static float InCircular (float time) {
+        return 1f - (float)java.lang.Math.sqrt(1f - java.lang.Math.pow(time, 2));
     };
 
-    public static double OutCircular (double time) {
-        return 1 - InCircular(1-time);
+    public static float OutCircular (float time) {
+        return 1f - InCircular(1f-time);
     };
 
-    public static double InOutCircular (double time) {
-        if(time < 0.5) 
+    public static float InOutCircular (float time) {
+        if(time < 0.5f) 
         {
-            return InCircular(time*2.0)/2.0;
+            return InCircular(time*2.0f)/2.0f;
         }
-        return 1-InCircular((1-time)*2)/2;            
+        return 1f-InCircular((1f-time)*2f)/2f;            
     };
 
 
 
 
-    public static double InBack (double time) {
-        final double c1 = 1.70158;
-        final double c3 = c1 + 1;
+    public static float InBack (float time) {
+        final float c1 = 1.70158f;
+        final float c3 = c1 + 1f;
         
         return c3 * time * time * time - c1 * time * time;
     };
 
-    public static double OutBack (double time) {
-        return 1 - InBack(1-time);
+    public static float OutBack (float time) {
+        return 1f - InBack(1f-time);
     };
 
-    public static double InOutBack (double time) {
-        if(time < 0.5) 
+    public static float InOutBack (float time) {
+        if(time < 0.5f) 
         {
-            return InBack(time*2.0)/2.0;
+            return InBack(time*2.0f)/2.0f;
         }
-        return 1-InBack((1-time)*2)/2;            
+        return 1f-InBack((1f-time)*2f)/2f;            
     };
 
 
 
 
-    public static double InElastic (double time) {
-        final double c4 = (2 * Math.Pi) / 3;
+    public static float InElastic (float time) {
+        final float c4 = (float)((2f * Math.Pi) / 3f);
 
-        return time == 0
-            ? 0
-            : time == 1
-            ? 1
-            : -java.lang.Math.pow(2, 10 * time - 10) * java.lang.Math.sin((time * 10 - 10.75) * c4);
+        return time == 0f
+            ? 0f
+            : time == 1f
+            ? 1f
+            : -(float)(java.lang.Math.pow(2, 10f * time - 10f) * java.lang.Math.sin((time * 10f - 10.75f) * c4));
     };
 
-    public static double OutElastic (double time) {
-        return 1 - InElastic(1-time);
+    public static float OutElastic (float time) {
+        return 1f - InElastic(1-time);
     };
 
-    public static double InOutElastic (double time) {
-        if(time < 0.5) 
+    public static float InOutElastic (float time) {
+        if(time < 0.5f) 
         {
-            return InElastic(time*2.0)/2.0;
+            return InElastic(time*2.0f)/2.0f;
         }
-        return 1-InElastic((1-time)*2)/2;            
+        return 1f-InElastic((1f-time)*2f)/2f;            
     };
 
 
 
 
-    public static double InBounce (double time) {
-        return 1 - OutBounce(1 - time);
+    public static float InBounce (float time) {
+        return 1f - OutBounce(1f - time);
     };
 
-    public static double OutBounce (double time) {
-        final double n1 = 7.5625;
-        final double d1 = 2.75;
+    public static float OutBounce (float time) {
+        final float n1 = 7.5625f;
+        final float d1 = 2.75f;
 
-        if (time < 1 / d1) {
+        if (time < 1f / d1) {
             return n1 * time * time;
-        } else if (time < 2 / d1) {
-            return n1 * (time -= 1.5 / d1) * time + 0.75;
-        } else if (time < 2.5 / d1) {
-            return n1 * (time -= 2.25 / d1) * time + 0.9375;
+        } else if (time < 2f / d1) {
+            return n1 * (time -= 1.5f / d1) * time + 0.75f;
+        } else if (time < 2.5f / d1) {
+            return n1 * (time -= 2.25f / d1) * time + 0.9375f;
         } else {
-            return n1 * (time -= 2.625 / d1) * time + 0.984375;
+            return n1 * (time -= 2.625f / d1) * time + 0.984375f;
         }
     };
 
-    public static double InOutBounce (double time) {
-        return time < 0.5
-            ? (1 - OutBounce(1 - 2 * time)) / 2
-            : (1 + OutBounce(2 * time - 1)) / 2;   
+    public static float InOutBounce (float time) {
+        return time < 0.5f
+            ? (1f - OutBounce(1f - 2f * time)) / 2f
+            : (1f + OutBounce(2f * time - 1f)) / 2f;   
     };
 
 
 
-    // public static double EaseInOutBounce (double time) {
+    // public static float EaseInOutBounce (float time) {
     //     if(time < 0.5) 
     //     {
     //         return EaseOutBounce(time*2.0)/2.0;
@@ -351,7 +351,7 @@ public class Easing
     //     return 1-EaseOutBounce((1-time)*2)/2;            
     // };
 
-    // public static double PikeSine (double time) {
+    // public static float PikeSine (float time) {
     //     if(time < 0.5) 
     //     {
     //         return EaseInSine(time*2.0);
@@ -359,7 +359,7 @@ public class Easing
     //     return EaseInSine((1-time)*2);            
     // };
 
-    // public static double PikeCosine (double time) {
+    // public static float PikeCosine (float time) {
     //     if(time < 0.5) 
     //     {
     //         return EaseOutSine(time*2.0);
@@ -370,19 +370,19 @@ public class Easing
             
 
     // // exponential easing in - accelerating from zero velocity
-    // public static double EaseInExpo (double time, double min, double length, double duration) {
+    // public static float EaseInExpo (float time, float min, float length, float duration) {
     //     return c * Math.pow( 2, 10 * (t/d - 1) ) + b;
     // };
 
 
     // // exponential easing out - decelerating to zero velocity
-    // public static double EaseOutExpo (double time, double min, double length, double duration) {
+    // public static float EaseOutExpo (float time, float min, float length, float duration) {
     //     return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
     // };
             
 
     // // exponential easing in/out - accelerating until halfway, then decelerating
-    // public static double EaseInOutExpo (double time, double min, double length, double duration) {
+    // public static float EaseInOutExpo (float time, float min, float length, float duration) {
     //     t /= d/2;
     //     if (t < 1) return c/2 * Math.pow( 2, 10 * (t - 1) ) + b;
     //     t--;
@@ -391,14 +391,14 @@ public class Easing
             
 
     // // circular easing in - accelerating from zero velocity
-    // public static double EaseInCirc (double time, double min, double length, double duration) {
+    // public static float EaseInCirc (float time, float min, float length, float duration) {
     //     t /= d;
     //     return -c * (Math.sqrt(1 - t*t) - 1) + b;
     // };
             
 
     // // circular easing out - decelerating to zero velocity
-    // public static double EaseOutCirc (double time, double min, double length, double duration) {
+    // public static float EaseOutCirc (float time, float min, float length, float duration) {
     //     t /= d;
     //     t--;
     //     return c * Math.sqrt(1 - t*t) + b;
@@ -406,7 +406,7 @@ public class Easing
             
 
     // // circular easing in/out - acceleration until halfway, then deceleration
-    // public static double EaseInOutCirc (double time, double min, double length, double duration) {
+    // public static float EaseInOutCirc (float time, float min, float length, float duration) {
     //     t /= d/2;
     //     if (t < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
     //     t -= 2;

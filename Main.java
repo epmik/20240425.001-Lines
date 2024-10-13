@@ -5,8 +5,10 @@ public class Main
  
   public static void main(String[] passedArgs) 
   {
-      Sketch.Instance = new Sketch();
-      String[] processingArgs = {"Sketch"};
-      PApplet.runSketch(processingArgs, Sketch.Instance);
+      //Sketch.Instance = new SketchTrajectoryCurvy001();
+      // Sketch.Instance = new SketchTrajectoryStraight001();
+      Sketch.Instance = new SketchTrajectory002();
+
+      PApplet.runSketch(new String[] {"Sketch"}, Sketch.Instance);
   }
 }

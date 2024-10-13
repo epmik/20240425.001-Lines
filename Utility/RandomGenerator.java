@@ -26,12 +26,17 @@ public class RandomGenerator implements IRandomGenerator
     {
       return _seed;
     }
-  
-  public long ReSeed()
-  {
-    return ReSeed(SeedRoot++);
-  }
-  
+    
+    public long Reset()
+    {
+      return ReSeed(_seed);
+    }
+    
+    public long ReSeed()
+    {
+      return ReSeed(SeedRoot++);
+    }
+    
    public long ReSeed(long seed)
    {
     if(seed != _seed)
@@ -42,9 +47,19 @@ public class RandomGenerator implements IRandomGenerator
      return _seed;
    }
     
-    public double Value()
+    public float Value()
     {
-        return _random.nextDouble();
+        return (float)_random.nextDouble();
+    }
+    
+    public float Value(float max)
+    {
+        return Value(0, max);
+    }
+    
+    public float Value(float min, float max)
+    {
+        return min + (float)_random.nextDouble() * (max - min);
     }
     
     public double Value(double max)
