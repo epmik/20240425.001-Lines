@@ -150,7 +150,7 @@ public class SketchTrajectoryStraight001 extends Sketch
       // ((SunRayEasingWidth)s).NoiseInputMultiplier = 0.01f;
       s.Trajectory(t);
       ((SunRayEasingWidth)s).MaxWidth = (float)RandomGenerator.Value(12, 80);
-      s.Angle = (float)RandomGenerator.Value(0f, Math.PI * 2f);
+      s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
       s.Setup();
     }
 

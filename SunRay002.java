@@ -5,11 +5,9 @@ public class SunRay002 extends AbstractSunRay
 {
     public void Draw(PGraphics graphics)
     {
-        var step = 1f / (float)Resolution;
-
         graphics.pushMatrix();
 
-        for (var time = 0f; time <= 1f; time += step) 
+        for (var time = 0f; time <= 1f; time += _timeStep) 
         {
             Vector2 v = Trajectory().PointAt(time);
 

@@ -7,7 +7,7 @@ public class Main
   {
       //Sketch.Instance = new SketchTrajectoryCurvy001();
       // Sketch.Instance = new SketchTrajectoryStraight001();
-      Sketch.Instance = new SketchTrajectory002();
+      Sketch.Instance = new Sketch002();
 
       PApplet.runSketch(new String[] {"Sketch"}, Sketch.Instance);
   }

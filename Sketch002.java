@@ -7,13 +7,21 @@ import Utility.ColorPicker.ColorScheme;
 import processing.core.*;
 import processing.event.KeyEvent;
 
-public class SketchTrajectory002 extends Sketch
+public class Sketch002 extends Sketch
 {
-  private int _sunRay001Count = 128;
-  private int _sunRay002Count = 512;
 
-  ArrayList<AbstractSunRay> _sunRay001ArrayList = new ArrayList<AbstractSunRay>();
-  ArrayList<AbstractSunRay> _sunRay002ArrayList = new ArrayList<AbstractSunRay>();
+  private boolean _drawBackground = true;
+
+  private int _sunRayIndex = 0;//128;
+  private int _sunRayCount = 1024;
+
+  private int _sunRayDrawIndex = 0;
+  private int _sunRayDrawCount = 128;
+
+  ArrayList<AbstractSunRay> _sunRayArrayList = null;
+  ArrayList<AbstractSunRay> _sunRayDrawArrayList = new ArrayList<>();
+
+  WeightedSunRayCreator _weightedSunRayCreator = new WeightedSunRayCreator();
 
   public SunBackgroundVerticalGradiant Background;
 
@@ -134,56 +142,56 @@ public class SketchTrajectory002 extends Sketch
     RadialGradient.Insert(Graphics.height * 0.5f, Background.Gradient.RandomColor(0f, 1f));
   }
 
+  private AbstractSunRay CreateCurvySunRay()
+  {
+    var s = new SunRayStaticWidth();
+    var t = new TrajectoryCurvy001();
+
+    s.Trajectory(t);
+
+    t.MinAngleStep = RandomGenerator.Value(0.001f, 0.01f);
+    t.MaxAngleStep = RandomGenerator.Value(t.MinAngleStep, 0.025f);
+    t.Length(RandomGenerator.Value(1000, 2000));
+    t.WalkCount = RandomGenerator.Value(2, 6);
+    t.WalkDistanceDeviation = RandomGenerator.Value(0f, 0.25f);
+
+    s.Width = RandomGenerator.Value(1f, 4f);
+    s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
+
+    s.Setup();
+
+    return s;
+  }
+
+  private AbstractSunRay CreateStraightSunRay()
+  {
+    var s = new SunRayStaticWidth();
+    var t = new TrajectoryStraight001();
+    s.Trajectory(t);
+
+    t.Length(RandomGenerator.Value(400, 800));
+
+    s.Width = (float)RandomGenerator.Value(1, 4);
+    s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
+
+    s.Setup();
+
+    return s;
+}
+
   private void SetupRays()
   {
-    for(var i = 0; i < _sunRay001Count; i++)
+    _weightedSunRayCreator.Add(1, () -> CreateCurvySunRay());
+    _weightedSunRayCreator.Add(4, () -> CreateStraightSunRay());
+
+    if(_sunRayArrayList == null)
     {
-      var t = new TrajectoryCurvy001();
-      t.MinAngleStep = RandomGenerator.Value(0.001f, 0.01f);
-      t.MaxAngleStep = RandomGenerator.Value(t.MinAngleStep, 0.025f);
-      t.Length(RandomGenerator.Value(1000, 2000));
-      t.WalkCount = RandomGenerator.Value(2, 6);
-      t.WalkDistanceDeviation = RandomGenerator.Value(0f, 0.25f);
+      _sunRayArrayList = new ArrayList<>();
 
-      var s = i < _sunRay001ArrayList.size() ? (SunRayStaticWidth) _sunRay001ArrayList.get(i) : null;
-
-      if (s == null) {
-        s = new SunRayStaticWidth();
-        _sunRay001ArrayList.add(s);
-      }
-
-      // ((SunRayStaticWidth)s).NoiseInputMultiplier = 0.01f;
-      s.Trajectory(t);
-
-      var u = (SunRayStaticWidth) s;
-
-      u.Width = (float) RandomGenerator.Value(4, 16);
-      u.Angle = (float) RandomGenerator.Value(0f, Math.PI * 2f);
-
-      s.Setup();
-    }
-    
-    for(var i = 0; i < _sunRay002Count; i++)
-    {
-      var t = new TrajectoryStraight001();
-      t.Length(RandomGenerator.Value(400, 800));
-
-      var s = i < _sunRay002ArrayList.size() ? (SunRayStaticWidth)_sunRay002ArrayList.get(i) : null;
-
-      if(s == null)
+      for(var i = 0; i < _sunRayCount; i++)
       {
-        s = new SunRayStaticWidth();
-        _sunRay002ArrayList.add(s);
+        _sunRayArrayList.add(_weightedSunRayCreator.Next());
       }
-
-      s.Trajectory(t);
-
-      var u = (SunRayStaticWidth) s;
-
-      u.Width = (float)RandomGenerator.Value(4, 16);
-      u.Angle = (float) RandomGenerator.Value(0f, Math.PI * 2f);
-
-      s.Setup();
     }
 
     SetupRayColors();
@@ -191,12 +199,7 @@ public class SketchTrajectory002 extends Sketch
 
   private void SetupRayColors()
   {
-    for (var r : _sunRay001ArrayList) 
-    {
-      r.Color(Background.Gradient.RandomColor(0.00f, 1f).ToInt());
-    }
-
-    for (var r : _sunRay002ArrayList) 
+    for (var r : _sunRayArrayList) 
     {
       r.Color(Background.Gradient.RandomColor(0.00f, 1f).ToInt());
     }
@@ -224,13 +227,42 @@ public class SketchTrajectory002 extends Sketch
     
     SetupRayColors();
 
+    ResetDrawState();
+
     StaticRayColor = Background.Gradient.RandomColor().ToInt();
+  }
+
+  private void ResetDrawState()
+  {
+    _drawBackground = true;
+    
+    _sunRayIndex = 0;
+    _sunRayDrawIndex = 0;
+
+    _sunRayDrawArrayList.clear();
+
+    _sunRayArrayList.forEach((t) -> 
+    {
+      t.ResetDrawState();
+    });  
   }
   
 	@Override
   void update(float elapsed)
   {
     super.update(elapsed);
+
+    _sunRayDrawArrayList.removeIf(s -> !s.IsAlive());
+
+    if (_sunRayIndex < _sunRayCount && _sunRayDrawArrayList.size() < _sunRayDrawCount)
+    {
+      for (var i = _sunRayDrawArrayList.size(); i < _sunRayDrawCount; i++) 
+      {
+        _sunRayDrawArrayList.add(_sunRayArrayList.get(_sunRayIndex++));
+      }
+    }
+    
+    _sunRayDrawArrayList.forEach(s -> s.Update(elapsed));
   }
       
 	@Override
@@ -244,32 +276,37 @@ public class SketchTrajectory002 extends Sketch
 
     g.background(255, 255, 255, 0);
 
-    if(_visualizeNoise)
-    {
-      DrawNoise((SunRayEasingWidth)_sunRay001ArrayList.get(0), Graphics);
+    // if(_visualizeNoise)
+    // {
+    //   DrawNoise((SunRayEasingWidth)_sunRay001ArrayList.get(0), Graphics);
 
-      g.image(Graphics, 0, 0, g.width, g.height);
+    //   g.image(Graphics, 0, 0, g.width, g.height);
 
-      return;
-    }
+    //   return;
+    // }
 
     Graphics.beginDraw();
-  
-    Graphics.background(255, 0, 0, 0);
 
-    Background.Draw(Graphics);
+    if(_drawBackground)
+    {
+      Graphics.background(255, 0, 0, 0);
+
+      Background.Draw(Graphics);
   
+      _drawBackground = false;
+    }  
+
     Graphics.pushMatrix();
 
     Graphics.translate(Graphics.width / 2, Graphics.height / 2);
 
-    _sunRay002ArrayList.forEach((t) -> {
-      t.Draw(Graphics);
-    });
+    // if(_sunRayDrawIndex < _sunRayCount)
+    // {
+    //   _sunRayArrayList.get(_sunRayDrawIndex).Draw(Graphics);
+    //   _sunRayDrawIndex++;
+    // }
 
-    _sunRay001ArrayList.forEach((t) -> {
-      t.Draw(Graphics);
-    });
+    _sunRayDrawArrayList.forEach(s -> s.Draw(Graphics));
 
     Graphics.popMatrix();
 
@@ -314,6 +351,8 @@ public class SketchTrajectory002 extends Sketch
     SetupRays();
 
     StaticRayColor = Background.Gradient.RandomColor().ToInt();
+
+    ResetDrawState();
   }    
  
 	@Override
@@ -349,11 +388,13 @@ public class SketchTrajectory002 extends Sketch
       {
         case PConstants.ENTER:
           NoiseGenerator.ReSeed();
+          ResetDrawState();
           break;
         case 'c':
         case 'C':
           SetupColorsBackgroundAndRadialGradient();
           SetupRayColors();
+          ResetDrawState();
           break;
         case 's':
         case 'S':
@@ -362,6 +403,7 @@ public class SketchTrajectory002 extends Sketch
         case 'n':
         case 'N':
           ColorMode = ColorMode.Next();
+          ResetDrawState();
           System.out.println("ColorMode: " + ColorMode);
           break;
         default:
