@@ -2,12 +2,12 @@ import Geometry.Vector2;
 
 public class TrajectoryStraight001 extends AbstractTrajectory
 {
-    public TrajectoryStraight001() 
-    {
-        super();
+    // public TrajectoryStraight001() 
+    // {
+    //     super();
 
-        Resolution = 1;
-    }
+    //     Resolution = 1;
+    // }
     
     public Vector2 PointAt(float time)
     {

@@ -27,7 +27,7 @@ public class SunRayNoiseWidth extends AbstractNoiseSunRay
             var w = (float)(MinWidth + ((MaxWidth - MinWidth) * Utility.NoiseGenerator.PositiveClamp(n)));
 
             graphics.strokeWeight(w);
-            graphics.stroke(((Sketch002)(Sketch.Instance)).RayColor(this, time, graphics.screenX(u.X, u.Y), graphics.screenY(u.X, u.Y)));
+            // graphics.stroke(((Sketch002)(Sketch.Instance)).RayColor(this, time, graphics.screenX(u.X, u.Y), graphics.screenY(u.X, u.Y)).ToInt());
             graphics.line(u.X, u.Y, v.X, v.Y);
         }
 

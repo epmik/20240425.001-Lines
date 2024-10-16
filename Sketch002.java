@@ -1,9 +1,9 @@
 import java.util.ArrayList;
-
-import Geometry.Vector2;
 import Utility.Color;
 import Utility.ColorPickerConstraint;
+import Utility.OpenSimplexNoiseGenerator;
 import Utility.ColorPicker.ColorScheme;
+import Utility.Interfaces.INoiseGenerator;
 import processing.core.*;
 import processing.event.KeyEvent;
 
@@ -13,9 +13,8 @@ public class Sketch002 extends Sketch
   private boolean _drawBackground = true;
 
   private int _sunRayIndex = 0;//128;
-  private int _sunRayCount = 1024;
+  private int _sunRayCount = 2048;
 
-  private int _sunRayDrawIndex = 0;
   private int _sunRayDrawCount = 128;
 
   ArrayList<AbstractSunRay> _sunRayArrayList = null;
@@ -28,8 +27,12 @@ public class Sketch002 extends Sketch
   public ColorPickerConstraint ColorPickerConstraint;
 
   public RadialGradient RadialGradient = new RadialGradient();
+  private RadialGradient _radialBurstGradient = new RadialGradient();
+  private RadialGradient _transparentRadialBurstGradient = new RadialGradient();
 
   private boolean _visualizeNoise = false;
+
+  private INoiseGenerator _trajectoryNoiseGenerator;
   
   public enum RayColorMode 
   {
@@ -46,39 +49,9 @@ public class Sketch002 extends Sketch
     }    
   }
   
-  public int StaticRayColor = 0;
-  public RayColorMode ColorMode = RayColorMode.RayColor;
+  private RayColorMode ColorMode = RayColorMode.RayColor;
   
-  public int RayColor(ISunRay sunRay, float time, float x, float y)
-  {
-    // var t = this.getClass().getDeclaredConstructor(null).newInstance();
-
-    switch (ColorMode) 
-    {
-      case StaticRayColor: 
-      {
-        return StaticRayColor;
-      }
-      case InvertedBackgroundGradient: 
-      {
-        float t = 1f - (y / (float)Graphics.height);
-
-        return Background.Gradient.Color(t).ToInt();
-      }
-      case RadialGradient: 
-      {
-        var d = new Vector2(x, y).Subtract(new Vector2(Graphics.width * 0.5f, Graphics.height * 0.5f)).Length();
-
-        return RadialGradient.Color(d).ToInt();
-      }
-      default: 
-      {
-        return sunRay.Color();
-      }
-    }
-  }
-  
-  public Color[] PickColors(ColorScheme scheme, int count)
+  private Color[] PickColors(ColorScheme scheme, int count)
   {
     count = Utility.Math.Clamp(count, 1, Integer.MAX_VALUE);
 
@@ -140,49 +113,109 @@ public class Sketch002 extends Sketch
 
     RadialGradient.Insert(0f, Background.Gradient.RandomColor(0f, 1f));
     RadialGradient.Insert(Graphics.height * 0.5f, Background.Gradient.RandomColor(0f, 1f));
+
+    if (_radialBurstGradient == null) 
+    {
+      _radialBurstGradient = new RadialGradient();
+    } 
+    else 
+    {
+      _radialBurstGradient.Clear();
+    }
+
+    _radialBurstGradient.Insert(1f, Background.Gradient.RandomColor(0f, 1f));
+    _radialBurstGradient.Insert(0f, _radialBurstGradient.ColorAt(1f).Brighter(0.2f, 0.98f));
+
+    if (_transparentRadialBurstGradient == null) 
+    {
+      _transparentRadialBurstGradient = new RadialGradient();
+    } 
+    else 
+    {
+      _transparentRadialBurstGradient.Clear();
+    }
+
+    _transparentRadialBurstGradient.Insert(0f, _radialBurstGradient.ColorAt(1f).Brighter(0.2f, 0.98f));
+    _transparentRadialBurstGradient.Insert(1f,  _transparentRadialBurstGradient.ColorAt(0f).A(0f));
+
+    // var t = _transparentRadialBurstGradient.ColorAt(0.5f);
   }
 
-  private AbstractSunRay CreateCurvySunRay()
+  private AbstractSunRay CreateCurvySunRay(ISunRayProviderOptions options)
   {
+    var o = (CurvySunRayProviderOptions)options;
+
     var s = new SunRayStaticWidth();
-    var t = new TrajectoryCurvy001();
+    var t = new TrajectoryCurvy001(o.TrajectoryRandomGenerator, o.TrajectoryNoiseGenerator);
 
     s.Trajectory(t);
 
-    t.MinAngleStep = RandomGenerator.Value(0.001f, 0.01f);
-    t.MaxAngleStep = RandomGenerator.Value(t.MinAngleStep, 0.025f);
-    t.Length(RandomGenerator.Value(1000, 2000));
-    t.WalkCount = RandomGenerator.Value(2, 6);
-    t.WalkDistanceDeviation = RandomGenerator.Value(0f, 0.25f);
+    t.MinAngleStep = RandomGeneratorNoResetOnUpdate.Value(o.MinMinAngleStep, o.MaxMinAngleStep);
+    t.MaxAngleStep = RandomGeneratorNoResetOnUpdate.Value(o.MinMaxAngleStep, o.MaxMaxAngleStep);
+    t.Length(RandomGeneratorNoResetOnUpdate.Value(o.MinLength, o.MaxLength));
+    t.WalkCount = RandomGeneratorNoResetOnUpdate.Value(o.MinWalkCount, o.MaxWalkCount);
+    t.WalkDistanceDeviation = RandomGeneratorNoResetOnUpdate.Value(o.MinWalkDistanceDeviation, o.MaxWalkDistanceDeviation);
 
-    s.Width = RandomGenerator.Value(1f, 4f);
-    s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
+    s.Width = (float)RandomGeneratorNoResetOnUpdate.Value(o.MinWidth, o.MaxWidth);
+    s.Angle(RandomGeneratorNoResetOnUpdate.Value(o.MinAngle, o.MaxAngle));
+
+    s.ColorProvider(o.ColorProvider);
+
+    if(o.ColorSupplier !=  null)
+    {
+      s.Color(o.ColorSupplier.get());
+    }
 
     s.Setup();
 
     return s;
   }
 
-  private AbstractSunRay CreateStraightSunRay()
+  private AbstractSunRay CreateRadialBurstSunRay(ISunRayProviderOptions options)
   {
+    var o = (RadialBurstSunRayProviderOptions)options;
+
     var s = new SunRayStaticWidth();
     var t = new TrajectoryStraight001();
+
     s.Trajectory(t);
 
-    t.Length(RandomGenerator.Value(400, 800));
+    t.Length(RandomGeneratorNoResetOnUpdate.Value(o.MinLength, o.MaxLength));
 
-    s.Width = (float)RandomGenerator.Value(1, 4);
-    s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
+    s.Width = (float)RandomGeneratorNoResetOnUpdate.Value(o.MinWidth, o.MaxWidth);
+    s.Angle(RandomGeneratorNoResetOnUpdate.Value(o.MinAngle, o.MaxAngle));
 
+    s.ColorProvider(o.ColorProvider);
+
+    if(o.ColorSupplier !=  null)
+    {
+      s.Color(o.ColorSupplier.get());
+    }
+    
     s.Setup();
 
-    return s;
-}
+    return s;  
+  }
 
   private void SetupRays()
   {
-    _weightedSunRayCreator.Add(1, () -> CreateCurvySunRay());
-    _weightedSunRayCreator.Add(4, () -> CreateStraightSunRay());
+    // _weightedSunRayCreator.Add(100, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 2f; MinLength = 1600f; MaxLength = 3200f; ColorProvider = _radialBurstGradient; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    // _weightedSunRayCreator.Add(100, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 2f; MinLength = 1200f; MaxLength = 2400f; ColorProvider = _radialBurstGradient; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    // _weightedSunRayCreator.Add(100, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 2f; MinLength = 800f; MaxLength = 1600f; ColorProvider = _radialBurstGradient; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    // _weightedSunRayCreator.Add(200, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 2f; MinLength = 600f; MaxLength = 1200f; ColorProvider = _radialBurstGradient; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    // _weightedSunRayCreator.Add(400, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 4f; MinLength = 400f; MaxLength = 800f; ColorProvider = _radialBurstGradient; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    
+    // white to transparent
+    // _weightedSunRayCreator.Add(400, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 2f; MinLength = 400f; MaxLength = 1200f; ColorProvider = _transparentRadialBurstGradient; }}));
+    // _weightedSunRayCreator.Add(400, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MaxWidth = 2f; MinLength = 400f; MaxLength = 800f; ColorProvider = _transparentRadialBurstGradient; }}));
+
+    _weightedSunRayCreator.Add(400, () -> CreateCurvySunRay(new CurvySunRayProviderOptions() { { MaxWidth = 4f; MinLength = 1600f; MaxLength = 3200f; ColorProvider = _transparentRadialBurstGradient; }}));
+    
+    // _weightedSunRayCreator.Add(1000, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MinWidth = 4f; MaxWidth = 16f; MinLength = 400f; MaxLength = 1600f; ColorProvider = _transparentRadialBurstGradient; }}));
+    // _weightedSunRayCreator.Add(1000, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MaxWidth = 4f; MinLength = 400f; MaxLength = 800f; ColorSupplier = () -> Background.Gradient.RandomColor(0.00f, 1f); }}));
+    // _weightedSunRayCreator.Add(1000, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MinLength = 400f; MaxLength = 480f; ColorProvider = _radialBurstGradient; }}));
+    // _weightedSunRayCreator.Add(250, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MinLength = 400f; MaxLength = 640f; ColorProvider = _radialBurstGradient; }}));
+    // _weightedSunRayCreator.Add(100, () -> CreateRadialBurstSunRay(new RadialBurstSunRayProviderOptions() { { MinLength = 600f; MaxLength = 880f; ColorProvider = _radialBurstGradient; }}));
 
     if(_sunRayArrayList == null)
     {
@@ -194,16 +227,16 @@ public class Sketch002 extends Sketch
       }
     }
 
-    SetupRayColors();
+    // SetupRayColors();
   }
 
-  private void SetupRayColors()
-  {
-    for (var r : _sunRayArrayList) 
-    {
-      r.Color(Background.Gradient.RandomColor(0.00f, 1f).ToInt());
-    }
-  }
+  // private void SetupRayColors()
+  // {
+  //   for (var r : _sunRayArrayList) 
+  //   {
+  //     r.Color(Background.Gradient.RandomColor(0.00f, 1f));
+  //   }
+  // }
   
   public void settings() 
   {
@@ -215,21 +248,23 @@ public class Sketch002 extends Sketch
   {
     super.setup();
 
+    _trajectoryNoiseGenerator = new OpenSimplexNoiseGenerator();
+
     ColorPickerConstraint = new ColorPickerConstraint();
     ColorPickerConstraint.MinSaturation = 0.45f;
     ColorPickerConstraint.MaxSaturation = 0.85f;
     ColorPickerConstraint.MinBrightness = 0.65f;
     ColorPickerConstraint.MaxBrightness = 0.90f;
 
+
+
     SetupColorsBackgroundAndRadialGradient();
 
     SetupRays();
     
-    SetupRayColors();
+    // SetupRayColors();
 
     ResetDrawState();
-
-    StaticRayColor = Background.Gradient.RandomColor().ToInt();
   }
 
   private void ResetDrawState()
@@ -237,7 +272,7 @@ public class Sketch002 extends Sketch
     _drawBackground = true;
     
     _sunRayIndex = 0;
-    _sunRayDrawIndex = 0;
+    // _sunRayDrawIndex = 0;
 
     _sunRayDrawArrayList.clear();
 
@@ -300,15 +335,25 @@ public class Sketch002 extends Sketch
 
     Graphics.translate(Graphics.width / 2, Graphics.height / 2);
 
-    // if(_sunRayDrawIndex < _sunRayCount)
-    // {
-    //   _sunRayArrayList.get(_sunRayDrawIndex).Draw(Graphics);
-    //   _sunRayDrawIndex++;
-    // }
-
     _sunRayDrawArrayList.forEach(s -> s.Draw(Graphics));
 
     Graphics.popMatrix();
+
+    // ----------
+
+    // Graphics.pushMatrix();
+
+    // Graphics.translate(Graphics.width / 2, Graphics.height / 2);
+
+    // Graphics.strokeWeight(64);
+    // Graphics.stroke(_transparentRadialBurstGradient.ColorAt(0.5f).ToInt());
+    // Graphics.line(0, 0, 800, 800);
+
+    // Graphics.strokeWeight(64);
+    // Graphics.stroke(_transparentRadialBurstGradient.ColorAt(0.0f).ToInt());
+    // Graphics.line(-800, 0, 0, 800);
+
+    // Graphics.popMatrix();
 
     // ----------
 
@@ -321,36 +366,34 @@ public class Sketch002 extends Sketch
     // ----------
   }
 
-  private void DrawNoise(SunRayEasingWidth sunRayEasingWidth, PGraphics graphics)
-  {
-    // var v = 0f;
-    // var index = 0;
+  // private void DrawNoise(SunRayEasingWidth sunRayEasingWidth, PGraphics graphics)
+  // {
+  //   // var v = 0f;
+  //   // var index = 0;
 
-    // graphics.beginDraw();
+  //   // graphics.beginDraw();
 
-    // graphics.loadPixels();
+  //   // graphics.loadPixels();
 
-    // for(var y = 0; y < graphics.height; y++)
-    // {
-    //   for(var x = 0; x < graphics.width; x++)
-    //   {
-    //     v = Utility.NoiseGenerator.PositiveClamp(sunRayEasingWidth.NoiseGenerator.Value(x * sunRayEasingWidth.NoiseInputMultiplier, y * sunRayEasingWidth.NoiseInputMultiplier));
+  //   // for(var y = 0; y < graphics.height; y++)
+  //   // {
+  //   //   for(var x = 0; x < graphics.width; x++)
+  //   //   {
+  //   //     v = Utility.NoiseGenerator.PositiveClamp(sunRayEasingWidth.NoiseGenerator.Value(x * sunRayEasingWidth.NoiseInputMultiplier, y * sunRayEasingWidth.NoiseInputMultiplier));
 
-    //     graphics.pixels[index++] = Color.RgbToInt(v);
-    //   }
-    // }
+  //   //     graphics.pixels[index++] = Color.RgbToInt(v);
+  //   //   }
+  //   // }
 
-    // graphics.updatePixels();
+  //   // graphics.updatePixels();
 
-    // graphics.endDraw();
-  }
+  //   // graphics.endDraw();
+  // }
  
 	@Override
   public void mousePressed() 
   {
     SetupRays();
-
-    StaticRayColor = Background.Gradient.RandomColor().ToInt();
 
     ResetDrawState();
   }    
@@ -393,7 +436,7 @@ public class Sketch002 extends Sketch
         case 'c':
         case 'C':
           SetupColorsBackgroundAndRadialGradient();
-          SetupRayColors();
+          // SetupRayColors();
           ResetDrawState();
           break;
         case 's':

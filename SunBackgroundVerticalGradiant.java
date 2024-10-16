@@ -1,4 +1,3 @@
-import Utility.Color;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -29,7 +28,7 @@ public class SunBackgroundVerticalGradiant
         {
             factor = PApplet.map(i, 0, graphics.height, 0, 1);
 
-            color = Gradient.Color(factor).ToInt();
+            color = Gradient.ColorAt(factor).ToInt();
 
             graphics.stroke(color, Alpha);
             graphics.line(0, i, graphics.width, i);

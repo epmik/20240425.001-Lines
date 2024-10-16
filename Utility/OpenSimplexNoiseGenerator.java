@@ -1,7 +1,4 @@
 package Utility;
-import java.util.Date;
-
-import Utility.Interfaces.INoiseGenerator;
 
 /*
  * OpenSimplex Noise in Java.
@@ -48,6 +45,8 @@ public class OpenSimplexNoiseGenerator extends NoiseGenerator
 	public OpenSimplexNoiseGenerator() 
 	{
 		super();
+
+		ReSeed(_seed);
 	}	
 	
 	public OpenSimplexNoiseGenerator(long seed) 

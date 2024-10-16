@@ -1,2 +1,4 @@
 
-data/*.*
+data/in/*.*
+data/out/*.*
+*.log

@@ -15,7 +15,8 @@ public class SunRay002 extends AbstractSunRay
             var screeny = graphics.screenY(v.X, v.Y);
 
             graphics.noStroke();
-            graphics.fill(SketchTrajectoryCurvy001.Instance.RayColor(this, time, screenx, screeny));
+            graphics.fill(255, 0, 0);
+            // graphics.fill(SketchTrajectoryCurvy001.Instance.RayColor(this, time, screenx, screeny).ToInt());
             graphics.circle(v.X, v.Y, 8f);
         }
 

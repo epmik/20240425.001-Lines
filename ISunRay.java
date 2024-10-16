@@ -1,11 +1,15 @@
-import Geometry.Vector2;
+import Utility.Color;
 import processing.core.PGraphics;
 
-public interface ISunRay 
+public interface ISunRay extends IColorProvider
 {
     ITrajectory Trajectory();
 
     void Trajectory(ITrajectory trajectory);
+
+    IColorProvider ColorProvider();
+
+    void ColorProvider(IColorProvider colorProvider);
 
     float Angle();
 
@@ -15,11 +19,9 @@ public interface ISunRay
 
     void Resolution(int resolution);
 
-    int Color();
+    Color Color();
 
-    void Color(int color);
-
-    int ColorAtTime(float time, float x, float y);
+    void Color(Color color);
 
     void Setup();
 

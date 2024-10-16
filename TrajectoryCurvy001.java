@@ -1,11 +1,14 @@
 import Geometry.Vector2;
+import Utility.OpenSimplexNoiseGenerator;
 import Utility.OpenSimplexSummedNoiseGenerator;
 import Utility.RandomGenerator;
+import Utility.Interfaces.INoiseGenerator;
+import Utility.Interfaces.IRandomGenerator;
 
 public class TrajectoryCurvy001 extends AbstractTrajectory
 {
-    public RandomGenerator RandomGenerator;
-    public OpenSimplexSummedNoiseGenerator NoiseGenerator;
+    public IRandomGenerator RandomGenerator;
+    public INoiseGenerator NoiseGenerator;
     public float MinAngleStep = 0.01f;
     public float MaxAngleStep = 0.05f;
     public float AngleNoiseOffset = 10.7641f;
@@ -18,8 +21,13 @@ public class TrajectoryCurvy001 extends AbstractTrajectory
 
     public TrajectoryCurvy001()
     {
-        RandomGenerator = new RandomGenerator();
-        NoiseGenerator = new OpenSimplexSummedNoiseGenerator();
+        this(new RandomGenerator(), new OpenSimplexNoiseGenerator());
+    }
+
+    public TrajectoryCurvy001(IRandomGenerator randomGenerator, INoiseGenerator noiseGenerator)
+    {
+        RandomGenerator = randomGenerator == null ? new RandomGenerator() : randomGenerator;
+        NoiseGenerator = noiseGenerator == null ? new OpenSimplexNoiseGenerator() : noiseGenerator;
     }
 
     @Override

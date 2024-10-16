@@ -1,11 +1,11 @@
-import Geometry.Vector2;
-import Utility.RandomGenerator;
+import Utility.Color;
 import processing.core.PGraphics;
 
 public abstract class AbstractSunRay implements ISunRay 
 {
     protected ITrajectory _trajectory;
-    protected int _color;
+    protected IColorProvider _colorProvider;
+    protected Color _color;
     protected int _resolution = 1000;
     protected float _angle = 0f;
     protected float _timeStep = 1f / _resolution;
@@ -13,15 +13,9 @@ public abstract class AbstractSunRay implements ISunRay
     protected float _currentTime = 0;
     protected float _targetTime = 0;
 
-    // public int Resolution = 1000;
-
-    // public float Angle = 0f;
-
     public AbstractSunRay()
     {
         super();
-
-        // Angle = RandomGenerator.Default.Value(0, Math.PI * 2f);
     }
 
     public ITrajectory Trajectory()
@@ -32,6 +26,16 @@ public abstract class AbstractSunRay implements ISunRay
     public void Trajectory(ITrajectory trajectory)
     {
         _trajectory = trajectory;
+    }
+
+    public IColorProvider ColorProvider()
+    {
+        return _colorProvider;
+    }
+
+    public void ColorProvider(IColorProvider colorProvider)
+    {
+        _colorProvider = colorProvider;
     }
 
     public int Resolution()
@@ -55,12 +59,12 @@ public abstract class AbstractSunRay implements ISunRay
         _angle = angle;
     }
 
-    public int Color()
+    public Color Color()
     {
         return _color;
     }
 
-    public void Color(int color)
+    public void Color(Color color)
     {
         _color = color;
     }
@@ -71,9 +75,19 @@ public abstract class AbstractSunRay implements ISunRay
         _targetTime = 0;
     }
 
-    public int ColorAtTime(float time, float x, float y)
+    public Color ColorAt(float time, float x, float y)
     {
-        return _color;
+        return _colorProvider == null ? _color : _colorProvider.ColorAt(time, x, y);
+    }
+
+    public Color ColorAt(float time)
+    {
+        return _colorProvider == null ? _color : _colorProvider.ColorAt(time);
+    }
+
+    public Color ColorAt(float x, float y)
+    {
+        return _colorProvider == null ? _color : _colorProvider.ColorAt(x, y);
     }
 
     public void Setup()

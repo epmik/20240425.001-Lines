@@ -19,24 +19,27 @@ public class SunRayStaticWidth extends AbstractSunRay
         
         graphics.noFill();
 
-        graphics.beginShape(PConstants.LINE_STRIP);
+        // graphics.beginShape(PConstants.LINE_STRIP);
 
         graphics.strokeWeight(Width);
 
-        for (; _currentTime <= _targetTime; _currentTime += _timeStep) 
+        for (; _currentTime < _targetTime; _currentTime += _timeStep) 
         {
             Vector2 v = Trajectory().PointAt(_currentTime);
+            Vector2 w = Trajectory().PointAt(_currentTime + _timeStep);
 
             var screenx = graphics.screenX(v.X, v.Y);
             var screeny = graphics.screenY(v.X, v.Y);
 
-            graphics.stroke(((Sketch002)(Sketch.Instance)).RayColor(this, _currentTime, screenx, screeny));
-            graphics.vertex(v.X, v.Y);
+            graphics.stroke(ColorAt(_currentTime, screenx, screeny).ToInt());
+            graphics.line(v.X, v.Y, w.X, w.Y);
         }
 
-        graphics.endShape();
+        // graphics.endShape();
 
         graphics.popMatrix();
+
+        // _currentTime = Utility.Math.Clamp(_currentTime, _targetTime);
 
     }
 }

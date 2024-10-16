@@ -156,25 +156,25 @@ public class Color
 
   public Color R(float r)
   {
-    _r = Clamp(r);
+    _r = Utility.Math.Clamp(r);
     return CalculateHsb(); 
   }
 
   public Color G(float g)
   {
-    _g = Clamp(g);
+    _g = Utility.Math.Clamp(g);
     return CalculateHsb(); 
   }
 
   public Color B(float b)
   {
-    _b = Clamp(b);
+    _b = Utility.Math.Clamp(b);
     return CalculateHsb(); 
   }
 
   public Color A(float a)
   {
-    _a = Clamp(a);
+    _a = Utility.Math.Clamp(a);
     return CalculateHsb(); 
   }
 
@@ -195,10 +195,10 @@ public class Color
 
   public Color Rgb(float r, float g, float b, float a)
   {
-    _r = Clamp(r);
-    _g = Clamp(g);
-    _b = Clamp(b);
-    _a = Clamp(a);
+    _r = Utility.Math.Clamp(r);
+    _g = Utility.Math.Clamp(g);
+    _b = Utility.Math.Clamp(b);
+    _a = Utility.Math.Clamp(a);
     return CalculateHsb(); 
   }
 
@@ -240,13 +240,13 @@ public class Color
 
   public Color Saturation(float s)
   {
-    _saturation = Clamp(s);
+    _saturation = Utility.Math.Clamp(s);
     return CalculateRgb();
   }
 
   public Color Brightness(float b)
   {
-    _brightness = Clamp(b);
+    _brightness = Utility.Math.Clamp(b);
     return CalculateRgb();
   }
 
@@ -258,9 +258,9 @@ public class Color
   public Color Hsb(float h, float s, float b, float a)
   {
     _hue = Wrap(h);
-    _saturation = Clamp(s);
-    _brightness = Clamp(b);
-    _a = Clamp(a);
+    _saturation = Utility.Math.Clamp(s);
+    _brightness = Utility.Math.Clamp(b);
+    _a = Utility.Math.Clamp(a);
     return CalculateRgb();
   }
   
@@ -291,7 +291,7 @@ public class Color
 
   static public Color Interpolate(Color c1, Color c2, float time) 
   {
-    time = Clamp(time);
+    time = Utility.Math.Clamp(time);
 
     float a1 = (float) c1.AInt();// ((c1 >> 24) & 0xff);
     float r1 = (float) c1.RInt();// (c1 >> 16) & 0xff;
@@ -316,7 +316,7 @@ public class Color
   
   static public int Interpolate(int c1, int c2, float time) 
   {
-    time = Clamp(time);
+    time = Utility.Math.Clamp(time);
 
     float a1 = ((c1 >> 24) & 0xff);
     float r1 = (c1 >> 16) & 0xff;
@@ -432,10 +432,10 @@ public class Color
     return this;
   }
     
-  public static float Clamp(float v)
-  {
-    return Math.Min(Math.Max(0, v), 1);
-  }
+  // public static float Clamp(float v)
+  // {
+  //   return Math.Min(Math.Max(0, v), 1);
+  // }
  
   public static float Wrap(float v)
   {
@@ -946,6 +946,22 @@ public class Color
       return 1.0;
     }
     return value;
+  }
+
+  public Color Brighter(float fraction) 
+  {
+    return Brighter(fraction, 1f);
+  }
+
+  public Color Brighter(float fraction, float max) 
+  {
+    return Brighter(fraction, 0f, 1f);
+  }
+
+  public Color Brighter(float fraction, float min, float max) 
+  {
+    _brightness = Utility.Math.Clamp(_brightness + fraction, min, max);
+    return CalculateRgb();
   }
 
   // public static int RandomColor()

@@ -6,6 +6,7 @@ import java.text.DateFormat;
 
 import Utility.Color;
 import Utility.ColorPickerConstraint;
+import Utility.OpenSimplexNoiseGenerator;
 import Utility.OpenSimplexSummedNoiseGenerator;
 import Utility.RandomGenerator;
 import Utility.ColorPicker.ColorScheme;
@@ -29,6 +30,7 @@ public abstract class Sketch extends PApplet implements ISketch {
   long _millis;
 
   public IRandomGenerator RandomGenerator;
+  public IRandomGenerator RandomGeneratorNoResetOnUpdate;
   public INoiseGenerator NoiseGenerator;
 
   public PGraphics Graphics;
@@ -55,7 +57,8 @@ public abstract class Sketch extends PApplet implements ISketch {
     super.setup();
 
     RandomGenerator = new RandomGenerator();
-    NoiseGenerator = new OpenSimplexSummedNoiseGenerator();
+    RandomGeneratorNoResetOnUpdate = new RandomGenerator();
+    NoiseGenerator = new OpenSimplexNoiseGenerator();
 
     frameRate(60);
 

@@ -1,13 +1,20 @@
 import java.util.ArrayList;
+import java.util.List;
 
-import Geometry.Vector2;
+import java.io.File;
+import java.text.DateFormat;
+
 import Utility.Color;
 import Utility.ColorPickerConstraint;
+import Utility.OpenSimplexSummedNoiseGenerator;
+import Utility.RandomGenerator;
 import Utility.ColorPicker.ColorScheme;
+import Utility.Interfaces.INoiseGenerator;
+import Utility.Interfaces.IRandomGenerator;
 import processing.core.*;
 import processing.event.KeyEvent;
 
-public class SketchTrajectoryStraight001 extends Sketch
+public class SketchTrajectoryCurvy001 extends Sketch
 {
   private int _sunRayCount = 128;
 
@@ -15,25 +22,14 @@ public class SketchTrajectoryStraight001 extends Sketch
 
   public SunBackgroundVerticalGradiant Background;
 
-  public ColorPickerConstraint ColorPickerConstraint;
-
-  public RadialGradient RadialGradient = new RadialGradient();
+  public ColorPickerConstraint ColorPickerConstraint = new ColorPickerConstraint();
 
   private boolean _visualizeNoise = false;
   
-  public enum RayColorMode 
-  {
+  public enum RayColorMode {
     StaticRayColor,
     RayColor,
     InvertedBackgroundGradient,
-    RadialGradient;
-
-    private static final RayColorMode[] _values = values();
-    
-    public RayColorMode Next() 
-    {
-        return _values[(ordinal() + 1) % _values.length];
-    }    
   }
   
   public int StaticRayColor = 0;
@@ -41,8 +37,6 @@ public class SketchTrajectoryStraight001 extends Sketch
   
   public int RayColor(ISunRay sunRay, float time, float x, float y)
   {
-    // var t = this.getClass().getDeclaredConstructor(null).newInstance();
-
     switch (ColorMode) 
     {
       case StaticRayColor: 
@@ -51,15 +45,9 @@ public class SketchTrajectoryStraight001 extends Sketch
       }
       case InvertedBackgroundGradient: 
       {
-        float t = 1f - (y / (float)Graphics.height);
+        float t = 1f - (y / Graphics.height);
 
-        return Background.Gradient.Color(t).ToInt();
-      }
-      case RadialGradient: 
-      {
-        var d = new Vector2(x, y).Subtract(new Vector2(Graphics.width * 0.5f, Graphics.height * 0.5f)).Length();
-
-        return RadialGradient.Color(d).ToInt();
+        return Background.Gradient.ColorAt(t).ToInt();
       }
       default: 
       {
@@ -82,7 +70,7 @@ public class SketchTrajectoryStraight001 extends Sketch
     return Utility.ColorPicker.RandomColors(ColorPickerConstraint, scheme, count);
   }
   
-  private void SetupColorsBackgroundAndRadialGradient()
+  private void SetupColorsAndBackground()
   {
     var count = RandomGenerator.Value(0, 100) < 10 ? 1 : 2;
 
@@ -117,27 +105,14 @@ public class SketchTrajectoryStraight001 extends Sketch
     }
 
     Background.Gradient.Insert(1f, colors[colors.length - 1]);
-
-
-    if (RadialGradient == null) 
-    {
-      RadialGradient = new RadialGradient();
-    } 
-    else 
-    {
-      RadialGradient.Clear();
-    }
-
-    RadialGradient.Insert(0f, Background.Gradient.RandomColor(0f, 1f));
-    RadialGradient.Insert(Graphics.height * 0.5f, Background.Gradient.RandomColor(0f, 1f));
   }
 
   private void SetupRays()
   {
     for(var i = 0; i < _sunRayCount; i++)
     {
-      var t = new TrajectoryStraight001();
-      t.Length(1800);
+      var t = new TrajectoryCurvy001();
+      t.Length(2400);
 
       var s = i < _sunRayArrayList.size() ? (SunRayEasingWidth)_sunRayArrayList.get(i) : null;
 
@@ -149,9 +124,9 @@ public class SketchTrajectoryStraight001 extends Sketch
 
       // ((SunRayEasingWidth)s).NoiseInputMultiplier = 0.01f;
       s.Trajectory(t);
-      ((SunRayEasingWidth)s).MaxWidth = (float)RandomGenerator.Value(12, 80);
-      s.Angle(RandomGenerator.Value(0f, (float)Math.PI * 2f));
+      ((SunRayEasingWidth)s).MaxWidth = 120f;
       s.Setup();
+
     }
 
     SetupRayColors();
@@ -175,13 +150,12 @@ public class SketchTrajectoryStraight001 extends Sketch
   {
     super.setup();
 
-    ColorPickerConstraint = new ColorPickerConstraint();
-    ColorPickerConstraint.MinSaturation = 0.45f;
-    ColorPickerConstraint.MaxSaturation = 0.85f;
-    ColorPickerConstraint.MinBrightness = 0.65f;
-    ColorPickerConstraint.MaxBrightness = 0.90f;
+    ColorPickerConstraint.MinSaturation = 0.35f;
+    ColorPickerConstraint.MaxSaturation = 0.75f;
+    ColorPickerConstraint.MinBrightness = 0.75f;
+    ColorPickerConstraint.MaxBrightness = 1.00f;
 
-    SetupColorsBackgroundAndRadialGradient();
+    SetupColorsAndBackground();
 
     SetupRays();
     
@@ -245,26 +219,26 @@ public class SketchTrajectoryStraight001 extends Sketch
 
   private void DrawNoise(SunRayEasingWidth sunRayEasingWidth, PGraphics graphics)
   {
-    // var v = 0f;
-    // var index = 0;
+    var v = 0f;
+    var index = 0;
 
-    // graphics.beginDraw();
+    graphics.beginDraw();
 
-    // graphics.loadPixels();
+    graphics.loadPixels();
 
-    // for(var y = 0; y < graphics.height; y++)
-    // {
-    //   for(var x = 0; x < graphics.width; x++)
-    //   {
-    //     v = Utility.NoiseGenerator.PositiveClamp(sunRayEasingWidth.NoiseGenerator.Value(x * sunRayEasingWidth.NoiseInputMultiplier, y * sunRayEasingWidth.NoiseInputMultiplier));
+    for(var y = 0; y < graphics.height; y++)
+    {
+      for(var x = 0; x < graphics.width; x++)
+      {
+        v = Utility.NoiseGenerator.PositiveClamp(sunRayEasingWidth.NoiseGenerator.Value(x * sunRayEasingWidth.NoiseInputMultiplier, y * sunRayEasingWidth.NoiseInputMultiplier));
 
-    //     graphics.pixels[index++] = Color.RgbToInt(v);
-    //   }
-    // }
+        graphics.pixels[index++] = Color.RgbToInt(v);
+      }
+    }
 
-    // graphics.updatePixels();
+    graphics.updatePixels();
 
-    // graphics.endDraw();
+    graphics.endDraw();
   }
  
 	@Override
@@ -309,20 +283,11 @@ public class SketchTrajectoryStraight001 extends Sketch
         case PConstants.ENTER:
           NoiseGenerator.ReSeed();
           break;
-        case 'c':
-        case 'C':
-          SetupColorsBackgroundAndRadialGradient();
-          SetupRayColors();
-          break;
-        case 's':
-        case 'S':
-          SaveFrame(Graphics);
-          break;
-        case 'n':
-        case 'N':
-          ColorMode = ColorMode.Next();
-          System.out.println("ColorMode: " + ColorMode);
-          break;
+          case 'c':
+          case 'C':
+            SetupColorsAndBackground();
+            SetupRayColors();
+            break;
         default:
           break;
         case PConstants.TAB:

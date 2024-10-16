@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import Utility.Color;
 import Utility.RandomGenerator;
 
-public class LinearGradient
+public class LinearGradient implements IColorProvider
 {
     public RandomGenerator RandomGenerator;
 
@@ -105,7 +105,17 @@ public class LinearGradient
         _entryArrayList.clear();
     }
     
-    public Color Color(float time)
+    public Color ColorAt(float time, float x, float y)
+    {
+        return ColorAt(time);
+    }
+    
+    public Color ColorAt(float x, float y)
+    {
+        return ColorAt(1f);
+    }
+
+    public Color ColorAt(float time)
     {
         time = Utility.Math.Clamp(time, _minTime, _maxTime);
 
@@ -148,9 +158,9 @@ public class LinearGradient
 
     public Color RandomColor(float min, float max)
     {
-        min = Color.Clamp(min);
-        max = Color.Clamp(max);
+        min = Utility.Math.Clamp(min);
+        max = Utility.Math.Clamp(max);
 
-        return Color((float)RandomGenerator.Value(min, max));
+        return ColorAt((float)RandomGenerator.Value(min, max));
     }
 }
